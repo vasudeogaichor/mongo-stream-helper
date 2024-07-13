@@ -1,0 +1,9 @@
+{
+    "mongodbUri": "mongodb://root:example@localhost:27017/testdb",
+    "sourceCollection": "testcollection1",
+    "filterQuery": {
+        "country": "Iraq"
+    },
+    "downloadLocation": "./download",
+    "filename": "download.json"
+}
