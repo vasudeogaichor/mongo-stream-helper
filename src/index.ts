@@ -1,59 +1,3 @@
-// export const main = (): string => 'Hello World';
-
-// console.log(main());
-
-/*import { Command } from 'commander';
-import { downloadData, transferData } from './tasks';
-import inquirer from 'inquirer';
-
-const program = new Command();
-
-program.version('0.1.0').description('CLI tool for MongoDB data tasks');
-
-program
-  .command('download')
-  .description('Download MongoDB data to local disk')
-  .option('-c, --config <path>', 'Path to JSON config file')
-  .action(async (cmd) => {
-    const options = cmd.config ? require(cmd.config) : await promptForOptions();
-    await downloadData(options);
-  });
-
-program
-  .command('transfer')
-  .description('Transfer MongoDB data from one collection to another')
-  .option('-c, --config <path>', 'Path to JSON config file')
-  .action(async (cmd) => {
-    const options = cmd.config ? require(cmd.config) : await promptForOptions();
-    await transferData(options);
-  });
-
-async function promptForOptions() {
-  const questions = [
-    {
-      type: 'input',
-      name: 'mongodbUri',
-      message: 'Enter MongoDB URI:',
-    },
-    {
-      type: 'input',
-      name: 'sourceCollection',
-      message: 'Enter source collection name:',
-    },
-    {
-      type: 'input',
-      name: 'filterQuery',
-      message: 'Enter filter query (JSON format):',
-      filter: (input: string) => JSON.parse(input),
-    },
-    // Add more questions as needed
-  ];
-  return inquirer.prompt(questions);
-}
-
-program.parse(process.argv);
-
-*/
 import { Command } from "commander";
 import { downloadData /*, transferData*/ } from "./tasks";
 import { prompt } from "enquirer";
@@ -72,6 +16,8 @@ program
     console.log("options - ", options);
     // TODO - figure out why is this needed to do again here
     options.filterQuery = JSON.parse(options.filterQuery);
+    options.skip = parseInt(options.skip);
+    options.limit = parseInt(options.limit);
     await downloadData(options);
   });
 
@@ -129,24 +75,32 @@ async function promptForOptions() {
       },
     },
     {
-      type: 'input',
-      name: 'skip',
-      message: 'Enter number of documents to skip:',
-      initial: '0',
+      type: "input",
+      name: "skip",
+      message: "Enter number of documents to skip:",
+      initial: "0",
       validate: (value: string) => {
         const number = parseInt(value, 10);
-        return !isNaN(number) && number >= 0 || 'Please enter a valid non-negative integer';
-      }
+        console.log("skip - ", number);
+        return (
+          (!isNaN(number) && number >= 0) ||
+          "Please enter a valid non-negative integer"
+        );
+      },
     },
     {
-      type: 'input',
-      name: 'limit',
-      message: 'Enter limit on number of documents to fetch:',
-      initial: '0', // Use 0 to fetch all documents by default
+      type: "input",
+      name: "limit",
+      message: "Enter limit on number of documents to fetch:",
+      initial: "0", // Use 0 to fetch all documents by default
       validate: (value: string) => {
         const number = parseInt(value, 10);
-        return !isNaN(number) && number >= 0 || 'Please enter a valid non-negative integer';
-      }
+        console.log("limit - ", number);
+        return (
+          (!isNaN(number) && number >= 0) ||
+          "Please enter a valid non-negative integer"
+        );
+      },
     },
     {
       type: "input",
@@ -170,7 +124,7 @@ async function promptForOptions() {
       type: "input",
       name: "filename",
       message: "Enter filename:",
-      initial: 'download.json',
+      initial: "download.json",
       validate: (value: string) =>
         value.trim().length > 0 || "Filename cannot be empty",
     },
