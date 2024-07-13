@@ -1,8 +1,9 @@
 {
-  "name": "nodejs-typescript-app",
-  "version": "0.4.1",
-  "description": "Bootstrap new nodejs typescript projects",
+  "name": "mongo-stream-helper",
+  "version": "1.0.0",
+  "description": "CLI tool for MongoDB data tasks",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "clean:dist": "rimraf ./dist",
     "clean:modules": "rimraf ./node_modules",
@@ -42,5 +43,15 @@
     "esm": "^3.2.25",
     "mongodb": "^6.8.0",
     "ora": "^3.4.0"
-  }
+  },
+  "bin": {
+    "mongodb-cli-tool": "./dist/index.js"
+  },
+  "keywords": [
+    "mongodb",
+    "collection",
+    "streaming"
+  ],
+  "author": "Vasudeo Gaichor (vasudeogaichor@gmail.com)",
+  "license": "ISC"
 }
