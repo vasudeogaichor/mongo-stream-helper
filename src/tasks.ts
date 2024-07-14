@@ -36,12 +36,13 @@ export async function downloadData(options: DownloadTaskOptions) {
       .find(options.filterQuery)
       .skip(options.skip)
       .limit(options.limit);
+    const stream = cursor.stream();
 
     const totalDocs = await collection.countDocuments(options.filterQuery, {
       skip: options.skip,
       limit: options.limit,
     });
-    console.log('totalDocs - ', totalDocs);
+    console.log("totalDocs - ", totalDocs);
     let processedDocs = 0;
 
     spinner.text = `Downloading data (${processedDocs}/${totalDocs})...`;
@@ -49,19 +50,27 @@ export async function downloadData(options: DownloadTaskOptions) {
     const writeStream = fs.createWriteStream(
       `${options.downloadLocation}/${options.filename}`
     );
+    writeStream.write("[");
+    let isFirstDocument = true;
 
-    cursor.stream().on("data", (doc) => {
-      writeStream.write(JSON.stringify(doc) + "\n");
+    stream.on("data", (doc) => {
+      if (!isFirstDocument) {
+        writeStream.write(",");
+      }
+      writeStream.write(JSON.stringify(doc));
+      isFirstDocument = false;
       processedDocs++;
       spinner.text = `Downloading data (${processedDocs}/${totalDocs})...`;
     });
 
-    cursor.stream().on("end", () => {
+    stream.on("end", () => {
+      writeStream.write("]");
       spinner.succeed("Download completed.");
+      writeStream.end();
       client.close();
     });
 
-    cursor.stream().on("error", (err) => {
+    stream.on("error", (err) => {
       spinner.fail("Download failed.");
       console.error(err);
       client.close();
