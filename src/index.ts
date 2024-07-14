@@ -81,7 +81,6 @@ async function promptForOptions() {
       initial: "0",
       validate: (value: string) => {
         const number = parseInt(value, 10);
-        console.log("skip - ", number);
         return (
           (!isNaN(number) && number >= 0) ||
           "Please enter a valid non-negative integer"
@@ -95,7 +94,6 @@ async function promptForOptions() {
       initial: "0", // Use 0 to fetch all documents by default
       validate: (value: string) => {
         const number = parseInt(value, 10);
-        console.log("limit - ", number);
         return (
           (!isNaN(number) && number >= 0) ||
           "Please enter a valid non-negative integer"
