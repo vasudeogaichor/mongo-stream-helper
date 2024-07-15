@@ -29,6 +29,10 @@ export async function downloadData(options: DownloadTaskOptions) {
   const client = new MongoClient(options.mongodbUri);
   try {
     await client.connect();
+
+    await client.db(options.databaseName).command({ ping: 1 });
+    spinner.succeed('Connection established.');
+
     const db = client.db(options.databaseName);
     const collection = db.collection(options.sourceCollection);
 
@@ -76,7 +80,7 @@ export async function downloadData(options: DownloadTaskOptions) {
       client.close();
     });
   } catch (err) {
-    spinner.fail("Connection failed.");
+    spinner.fail("Error downloading data.");
     console.error(err);
     client.close();
   }
