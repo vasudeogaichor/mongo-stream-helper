@@ -12,7 +12,8 @@ program
   .description("Download MongoDB data to local disk")
   .option("-c, --config <path>", "Path to JSON config file")
   .action(async (cmd) => {
-    const options = cmd.config ? require(cmd.config) : await promptForOptions();
+    const configPath: string = __dirname + "/" + cmd.config;
+    const options = cmd.config ? require(configPath) : await promptForOptions();
     console.log("options - ", options);
     // TODO - figure out why is this needed to do again here
     options.filterQuery = JSON.parse(options.filterQuery);
