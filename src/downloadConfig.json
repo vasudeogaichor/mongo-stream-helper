@@ -1,9 +1,12 @@
 {
-    "mongodbUri": "mongodb://root:example@localhost:27017/testdb",
-    "sourceCollection": "testcollection1",
-    "filterQuery": {
-        "country": "Iraq"
-    },
-    "downloadLocation": "./download",
-    "filename": "download.json"
+  "mongodbUri": "mongodb://root:example@localhost:27017",
+  "databaseName": "testdb",
+  "sourceCollection": "testcollection1",
+  "filterQuery": {
+    "country": "Iraq"
+  },
+  "downloadLocation": "./download",
+  "filename": "download.json",
+  "skip": 0,
+  "limit": 0
 }
