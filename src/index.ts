@@ -2,8 +2,16 @@ import { Command } from "commander";
 import { downloadData /*, transferData*/ } from "./tasks";
 import { prompt } from "enquirer";
 import path = require("path");
+import { DownloadTaskOptions } from './types';
 
 const program = new Command();
+
+const parseOptions = function (options: DownloadTaskOptions) {
+  options.filterQuery = typeof options.filterQuery === 'string' ? JSON.parse(options.filterQuery) : options.filterQuery;
+  options.skip = parseInt(options.skip.toString()) || 0;
+  options.limit = parseInt(options.limit.toString()) || 0;
+  return options;
+};
 
 program.version("0.1.0").description("CLI tool for MongoDB data tasks");
 
@@ -12,13 +20,9 @@ program
   .description("Download MongoDB data to local disk")
   .option("-c, --config <path>", "Path to JSON config file")
   .action(async (cmd) => {
-    const configPath: string = __dirname + "/" + cmd.config;
-    const options = cmd.config ? require(configPath) : await promptForOptions();
-    console.log("options - ", options);
-    // TODO - figure out why is this needed to do again here
-    options.filterQuery = JSON.parse(options.filterQuery);
-    options.skip = parseInt(options.skip);
-    options.limit = parseInt(options.limit);
+    let options = cmd.config ? require(cmd.config) : await promptForOptions();
+    // console.log("options - ", options);
+    options = parseOptions(options);
     await downloadData(options);
   });
 
