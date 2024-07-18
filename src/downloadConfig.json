@@ -4,7 +4,7 @@
   "sourceCollection": "testcollection1",
   "filterQuery": {
   },
-  "downloadLocation": "/home/vasudeogaichor/personal/typescript/mongo-stream-helper",
+  "downloadLocation": "/home",
   "filename": "download.json",
   "skip": 0,
   "limit": 0
