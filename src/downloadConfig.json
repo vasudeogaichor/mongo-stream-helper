@@ -3,7 +3,6 @@
   "databaseName": "testdb",
   "sourceCollection": "testcollection1",
   "filterQuery": {
-    "country": "Iraq"
   },
   "downloadLocation": "/home/vasudeogaichor/personal/typescript/mongo-stream-helper",
   "filename": "download.json",
