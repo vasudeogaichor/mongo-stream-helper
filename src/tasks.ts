@@ -1,6 +1,7 @@
 import { MongoClient } from "mongodb";
 import * as fs from "fs";
 import ora from "ora";
+import { DownloadTaskOptions } from "./types";
 
 /*
 interface TransferTaskOptions {
@@ -12,39 +13,32 @@ interface TransferTaskOptions {
   targetCollection?: string;
 }
 */
-interface DownloadTaskOptions {
-  mongodbUri: string;
-  databaseName: string;
-  sourceCollection: string;
-  filterQuery: object;
-  skip: number;
-  limit: number;
-  downloadLocation: string;
-  filename: string;
-}
 
 export async function downloadData(options: DownloadTaskOptions) {
   const spinner = ora("Connecting to MongoDB...").start();
+  // console.log("downloadData: ", options);
 
   const client = new MongoClient(options.mongodbUri);
   try {
     await client.connect();
 
     await client.db(options.databaseName).command({ ping: 1 });
-    spinner.succeed('Connection established.');
+    spinner.succeed("Connection established.");
 
     const db = client.db(options.databaseName);
     const collection = db.collection(options.sourceCollection);
 
-    const cursor = collection
-      .find(options.filterQuery)
-      .skip(options.skip)
-      .limit(options.limit);
+    const cursor = collection.find(options.filterQuery).skip(options.skip);
+    // .limit(options.limit);
+
+    if (options.limit !== 0) {
+      cursor.limit(options.limit);
+    }
     const stream = cursor.stream();
 
     const totalDocs = await collection.countDocuments(options.filterQuery, {
       skip: options.skip,
-      limit: options.limit,
+      ...(options.limit && { limit: options.limit }),
     });
     console.log("totalDocs - ", totalDocs);
     let processedDocs = 0;
