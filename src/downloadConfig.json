@@ -5,7 +5,7 @@
   "filterQuery": {
     "country": "Iraq"
   },
-  "downloadLocation": "./download",
+  "downloadLocation": "/home/vasudeogaichor/personal/typescript/mongo-stream-helper",
   "filename": "download.json",
   "skip": 0,
   "limit": 0
