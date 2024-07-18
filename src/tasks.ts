@@ -42,15 +42,16 @@ export async function downloadData(options: DownloadTaskOptions) {
     });
     console.log("totalDocs - ", totalDocs);
     let processedDocs = 0;
-
-    spinner.text = `Downloading data (${processedDocs}/${totalDocs})...`;
+    spinner.start(`Downloading data (0/${totalDocs})...`);
 
     const writeStream = fs.createWriteStream(
       `${options.downloadLocation}/${options.filename}`
     );
-    writeStream.write("[");
-    let isFirstDocument = true;
 
+    writeStream.write("[");
+
+    let isFirstDocument = true;
+    
     stream.on("data", (doc) => {
       if (!isFirstDocument) {
         writeStream.write(",");
@@ -58,7 +59,7 @@ export async function downloadData(options: DownloadTaskOptions) {
       writeStream.write(JSON.stringify(doc));
       isFirstDocument = false;
       processedDocs++;
-      spinner.text = `Downloading data (${processedDocs}/${totalDocs})...`;
+      spinner.text = `Downloading data... (${Math.round((processedDocs/totalDocs)*100)}%)`;
     });
 
     stream.on("end", () => {
