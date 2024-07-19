@@ -1,9 +1,78 @@
-# Typescript Nodejs Template
+# Mongo Stream Helper
 
-This is the template used by [create-typescript-application](https://www.npmjs.com/package/create-typescript-application) and was tested against nodejs [release v16](https://nodejs.org/en/blog/release/v16.16.0/).
+Mongo Stream Helper is a CLI tool designed to handle background tasks related to MongoDB data, such as downloading large collections using streaming and transferring data between collections. This tool can be used to manage MongoDB data more efficiently and can be packaged as an npm package for wider use.
 
-To quickly create a new Typescript application for the NodeJS runtime: 
+## Features
 
-```sh
-npx create-typescript-application
+- **Download large MongoDB data**: Stream and save data to the local disk.
+- **Transfer MongoDB data**: Move data from one collection to another.
+- **CLI and Config File Support**: Accept parameters through CLI inputs or a configuration file.
+- **Progress Tracking**: Monitor the download process with progress indicators.
+
+## Installation
+
+First, clone the repository and navigate to the project directory:
+
+```bash
+git clone https://github.com/vasudeogaichor/mongo-stream-helper.git
+cd mongo-stream-helper
+```
+Install the dependencies:
+```bash
+npm install
+```
+
+## Installation
+### CLI Usage
+You can run the CLI tool using npx and ts-node:
+```bash
+npx ts-node src/index.ts <command> [options]
+```
+
+### Commands
+
+- **download**: Download data from a MongoDB collection to a local file.
+
+### Options
+- **`--mongodbUri`** (string, required): MongoDB URI for connecting to the database.
+- **`databaseName`**(string, required): Name of the database.
+- **`sourceCollection`** (string, required): Name of the source collection.
+- **`filterQuery`**(string, optional): Filter query in JSON format to apply to the collection.
+- **`skip`**(number, optional): Number of documents to skip.
+- **`limit`**(number, optional): Limit the number of documents to download.
+- **`downloadLocation`**(string, required): Directory to save the downloaded file.
+- **`filename`**(string, required): Name of the downloaded file.
+- **`config`**(string, optional): Path to a JSON configuration file containing the above options.
+
+### Example
+1. Download data using CLI options:
+```bash
+npx ts-node src/index.ts download --mongodbUri "mongodb://root:example@localhost:27017" --databaseName "testdb" --sourceCollection "testcollection" --filterQuery "{}" --skip 0 --limit 1000 --downloadLocation "./downloads" --filename "data.json"
+```
+
+2. Download data using a configuration file:
+Create a configuration file `downloadConfig.json`:
+
+```bash
+{
+  "mongodbUri": "mongodb://root:example@localhost:27017",
+  "databaseName": "testdb",
+  "sourceCollection": "testcollection",
+  "filterQuery": {},
+  "skip": 0,
+  "limit": 1000,
+  "downloadLocation": "./downloads",
+  "filename": "data.json"
+}
+```
+Run the download command with the configuration file:
+```bash
+npx ts-node src/index.ts download --config downloadConfig.json
+```
+
+## Development
+### Building the Project
+To build the project, run:
+```bash
+npm run build
 ```
