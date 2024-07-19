@@ -44,7 +44,7 @@
     "ora": "^3.4.0"
   },
   "bin": {
-    "mongodb-cli-tool": "./dist/index.js"
+    "mongo-stream-helper": "./dist/index.js"
   },
   "keywords": [
     "mongodb",
