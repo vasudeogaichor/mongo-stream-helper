@@ -1,0 +1,11 @@
+{
+  "sourceMongodbUri": "mongodb://root:example@localhost:27017",
+  "sourceDatabaseName": "testdb",
+  "sourceCollection": "testcollection1",
+  "filterQuery": {},
+  "skip": 0,
+  "limit": 1000,
+  "targetMongodbUri": "mongodb://root:example@localhost:27017",
+  "targetDatabaseName": "testdb",
+  "targetCollection": "testcollection2"
+}
