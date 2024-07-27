@@ -1,18 +1,7 @@
 import { MongoClient } from "mongodb";
 import * as fs from "fs";
 import ora from "ora";
-import { DownloadTaskOptions } from "./types";
-
-/*
-interface TransferTaskOptions {
-  mongodbUri: string;
-  sourceCollection: string;
-  filterQuery: object;
-  // downloadLocation?: string;
-  // filename?: string;
-  targetCollection?: string;
-}
-*/
+import { DownloadTaskOptions, TransferTaskOptions } from "./types";
 
 export async function downloadData(options: DownloadTaskOptions) {
   const spinner = ora("Connecting to MongoDB...").start();
@@ -51,7 +40,7 @@ export async function downloadData(options: DownloadTaskOptions) {
     writeStream.write("[");
 
     let isFirstDocument = true;
-    
+
     stream.on("data", (doc) => {
       if (!isFirstDocument) {
         writeStream.write(",");
@@ -59,7 +48,7 @@ export async function downloadData(options: DownloadTaskOptions) {
       writeStream.write(JSON.stringify(doc));
       isFirstDocument = false;
       processedDocs++;
-      spinner.text = `Downloading data... (${Math.round((processedDocs/totalDocs)*100)}%)`;
+      spinner.text = `Downloading data... (${Math.round((processedDocs / totalDocs) * 100)}%)`;
     });
 
     stream.on("end", () => {
@@ -81,38 +70,58 @@ export async function downloadData(options: DownloadTaskOptions) {
   }
 }
 
-/*
-export async function transferData(options: TaskOptions) {
+export async function transferData(options: TransferTaskOptions) {
   const spinner = ora('Connecting to MongoDB...').start();
+  const sourceClient = new MongoClient(options.sourceMongodbUri);
+  const targetClient = new MongoClient(options.targetMongodbUri);
+  try {
+    await sourceClient.connect();
+    await targetClient.connect();
 
-  const client = new MongoClient(options.mongodbUri);
-  await client.connect();
+    await sourceClient.db(options.sourceDatabaseName).command({ ping: 1 });
+    spinner.succeed("Connection established with source database.");
 
-  const db = client.db();
-  const sourceCollection = db.collection(options.sourceCollection);
-  const targetCollection = db.collection(options.targetCollection);
+    await targetClient.db(options.targetDatabaseName).command({ ping: 1 });
+    spinner.succeed("Connection established with target database.");
 
-  const cursor = sourceCollection.find(options.filterQuery);
-  const totalDocs = await cursor.count();
-  let processedDocs = 0;
+    const sourceDb = sourceClient.db(options.sourceDatabaseName);
+    const sourceCollection = sourceDb.collection(options.sourceCollection);
+    const targetDb = targetClient.db(options.targetDatabaseName);
+    const targetCollection = targetDb.collection(options.targetCollection);
 
-  spinner.text = `Transferring data (${processedDocs}/${totalDocs})...`;
+    const cursor = sourceCollection.find(options.filterQuery).skip(options.skip).limit(options.limit);
+    const stream = cursor.stream();
+    const totalDocs = await sourceCollection.countDocuments(options.filterQuery, {
+      skip: options.skip,
+      ...(options.limit && { limit: options.limit }),
+    });
 
-  cursor.stream().on('data', async (doc) => {
-    await targetCollection.insertOne(doc);
-    processedDocs++;
+    let processedDocs = 0;
     spinner.text = `Transferring data (${processedDocs}/${totalDocs})...`;
-  });
 
-  cursor.stream().on('end', () => {
-    spinner.succeed('Transfer completed.');
-    client.close();
-  });
+    stream.on('data', async (doc) => {
+      await targetCollection.insertOne(doc);
+      processedDocs++;
+      spinner.text = `Transferring data (${processedDocs}/${totalDocs})...`;
+    });
 
-  cursor.stream().on('error', (err) => {
-    spinner.fail('Transfer failed.');
+    stream.on('end', () => {
+      spinner.succeed('Transfer completed.');
+      sourceClient.close();
+      targetClient.close();
+    });
+
+    stream.on('error', (err) => {
+      spinner.fail('Transfer failed.');
+      console.error(err);
+      sourceClient.close();
+      targetClient.close();
+    });
+  } catch (err) {
+    spinner.fail('Error transferring data.');
     console.error(err);
-    client.close();
-  });
+    sourceClient.close();
+    targetClient.close();
+  }
 }
-*/
+
