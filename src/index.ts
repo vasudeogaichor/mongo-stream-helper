@@ -238,6 +238,12 @@ async function promptForTransferOptions() {
       validate: (value: string) =>
         value.trim().length > 0 || "Collection name cannot be empty",
     },
+    {
+      type: "confirm",
+      name: "updateExisting",
+      message: "Do you want to update existing documents?:",
+      default: false,
+    },
     // Add more questions as needed
   ];
 

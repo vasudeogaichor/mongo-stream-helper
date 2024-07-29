@@ -20,4 +20,5 @@ export interface TransferTaskOptions {
   targetMongodbUri: string;
   targetDatabaseName: string;
   targetCollection: string;
+  updateExisting: boolean
 }

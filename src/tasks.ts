@@ -99,10 +99,29 @@ export async function transferData(options: TransferTaskOptions) {
     spinner.text = `Transferring data (${processedDocs}/${totalDocs})...`;
 
     for await (const doc of cursor) {
-      await targetCollection.insertOne(doc);
-      processedDocs++;
-      spinner.text = `Transferring data (${processedDocs}/${totalDocs})...`;
-      spinner.render();
+      try {
+        if (options.updateExisting) {
+          await targetCollection.updateOne(
+            { _id: doc._id },
+            { $set: doc },
+            { upsert: true } // This will insert the document if it doesn't exist, or update it if it does.
+          );
+        } else {
+          await targetCollection.insertOne(doc);
+        }
+        processedDocs++;
+        spinner.text = `Transferring data (${processedDocs}/${totalDocs})...`;
+        spinner.render();
+      } catch (err: any) {
+        if (err.code === 11000 && !options.updateExisting) {
+          // Duplicate key error, skip this document if not updating
+          console.warn(`Duplicate key error for document with _id: ${doc._id}, skipping...`);
+        } else {
+          spinner.fail('Error transferring data.');
+          console.error(err);
+          break;
+        }
+      }
     }
 
     spinner.succeed('Transfer completed.');
