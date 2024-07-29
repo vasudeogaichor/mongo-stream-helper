@@ -90,7 +90,6 @@ export async function transferData(options: TransferTaskOptions) {
     const targetCollection = targetDb.collection(options.targetCollection);
 
     const cursor = sourceCollection.find(options.filterQuery).skip(options.skip).limit(options.limit);
-    const stream = cursor.stream();
     const totalDocs = await sourceCollection.countDocuments(options.filterQuery, {
       skip: options.skip,
       ...(options.limit && { limit: options.limit }),
@@ -99,29 +98,22 @@ export async function transferData(options: TransferTaskOptions) {
     let processedDocs = 0;
     spinner.text = `Transferring data (${processedDocs}/${totalDocs})...`;
 
-    stream.on('data', async (doc) => {
+    for await (const doc of cursor) {
       await targetCollection.insertOne(doc);
       processedDocs++;
       spinner.text = `Transferring data (${processedDocs}/${totalDocs})...`;
-    });
+      spinner.render();
+    }
 
-    stream.on('end', () => {
-      spinner.succeed('Transfer completed.');
-      sourceClient.close();
-      targetClient.close();
-    });
-
-    stream.on('error', (err) => {
-      spinner.fail('Transfer failed.');
-      console.error(err);
-      sourceClient.close();
-      targetClient.close();
-    });
+    spinner.succeed('Transfer completed.');
   } catch (err) {
     spinner.fail('Error transferring data.');
     console.error(err);
     sourceClient.close();
     targetClient.close();
+  } finally {
+    await sourceClient.close();
+    await targetClient.close();
   }
 }
 
