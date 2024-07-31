@@ -22,3 +22,17 @@ export interface TransferTaskOptions {
   targetCollection: string;
   updateExisting: boolean
 }
+
+export interface cliQuestion {
+
+  type: string;
+  name: string;
+  message: string;
+  initial?: string;
+  validate?: (value: string) => boolean | string;
+}
+
+export interface cliOption {
+  description: string;
+  default: string
+}
