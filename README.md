@@ -34,7 +34,7 @@ npx ts-node src/index.ts <command> [options]
 - **download**: Download data from a MongoDB collection to a local file.
 
 ### Options
-- **`--mongodbUri`** (string, required): MongoDB URI for connecting to the database.
+- **`mongodbUri`** (string, required): MongoDB URI for connecting to the database.
 - **`databaseName`**(string, required): Name of the database.
 - **`sourceCollection`** (string, required): Name of the source collection.
 - **`filterQuery`**(string, optional): Filter query in JSON format to apply to the collection.
@@ -68,6 +68,48 @@ Create a configuration file `downloadConfig.json`:
 Run the download command with the configuration file:
 ```bash
 npx ts-node src/index.ts download --config downloadConfig.json
+```
+
+- **transfer**: Transfer data from one MongoDB collection to another collection.
+
+### Options
+- **`sourceMongodbUri`** (string, required): MongoDB URI for connecting to the database source.
+- **`sourceDatabaseName`**(string, required): Name of the source database.
+- **`sourceCollection`** (string, required): Name of the source collection.
+- **`filterQuery`**(string, optional): Filter query in JSON format to apply to the source collection.
+- **`skip`**(number, optional): Number of documents to skip.
+- **`limit`**(number, optional): Limit the number of documents to download.
+- **`targetMongodbUri`** (string, required): MongoDB URI for connecting to the database target.
+- **`targetDatabaseName`**(string, required): Name of the target database.
+- **`targetCollection`** (string, required): Name of the target collection.
+- **`config`**(string, optional): Path to a JSON configuration file containing the above options.
+
+### Example
+1. Transfer data using CLI options:
+```bash
+npx ts-node src/index.ts transfer --sourceMongodbUri "mongodb://root:example@localhost:27017" --sourceDatabaseName "testdb" --sourceCollection "testcollection1" --filterQuery "{}" --skip 0 --limit 1000 --targetMongodbUri "mongodb://root:example@localhost:27017" --targetDatabaseName "testdb" --targetCollection "testcollection2"
+```
+
+2. Transfer data using a configuration file:
+Create a configuration file `transferConfig.json`:
+
+```bash
+{
+  "sourceMongodbUri": "mongodb://root:example@localhost:27017",
+  "sourceDatabaseName": "testdb",
+  "sourceCollection": "testcollection1",
+  "filterQuery": {},
+  "skip": 0,
+  "limit": 10000,
+  "targetMongodbUri": "mongodb://root:example@localhost:27017",
+  "targetDatabaseName": "testdb",
+  "targetCollection": "testcollection2",
+  "updateExisting": true
+}
+```
+Run the download command with the configuration file:
+```bash
+npx ts-node src/index.ts transfer --config transferConfig.json
 ```
 
 ## Development
