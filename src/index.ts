@@ -32,12 +32,49 @@ program
   .command("download")
   .description("Download MongoDB data to local disk")
   .option("-c, --config <path>", "Path to JSON config file")
+  .option("--mongodbUri <string>", "MongoDB URI")
+  .option("--databaseName <string>", "Database name")
+  .option("--sourceCollection <string>", "Source collection name")
+  .option("--filterQuery <string>", "Filter query (JSON format)")
+  .option("--skip <number>", "Number of documents to skip")
+  .option("--limit <number>", "Limit on number of documents to fetch")
+  .option("--downloadLocation <string>", "Download location (directory path)")
+  .option("--filename <string>", "Filename for the downloaded data")
   .action(async (cmd) => {
-    let options = cmd.config
-      ? require(cmd.config)
-      : await promptForDownloadOptions();
-    // console.log("options - ", options);
-    options = parseOptions(options);
+    let options: DownloadTaskOptions = {
+      mongodbUri: "",
+      databaseName: "",
+      sourceCollection: "",
+      filterQuery: {},
+      skip: 0,
+      limit: 0,
+      downloadLocation: "",
+      filename: "",
+    };
+
+    if (cmd.config) {
+      options = JSON.parse(fs.readFileSync(cmd.config, "utf8"));
+    } else {
+      // Convert filterQuery string to object if provided
+      if (cmd.filterQuery) {
+        try {
+          cmd.filterQuery = JSON.parse(cmd.filterQuery);
+        } catch (error) {
+          console.error("Invalid JSON format for filterQuery");
+          process.exit(1);
+        }
+      }
+
+      // Assign CLI options to the options object
+      options.mongodbUri = cmd.mongodbUri;
+      options.databaseName = cmd.databaseName;
+      options.sourceCollection = cmd.sourceCollection;
+      options.filterQuery = cmd.filterQuery;
+      options.skip = cmd.skip ? parseInt(cmd.skip, 10) : 0;
+      options.limit = cmd.limit ? parseInt(cmd.limit, 10) : 0;
+      options.downloadLocation = cmd.downloadLocation;
+      options.filename = cmd.filename;
+    }
     await downloadData(options);
   });
 
@@ -160,7 +197,7 @@ program
   .action(async (cmd) => {
     // const options = cmd.config ? require(cmd.config) : await prompt(transferQuestions);
     // await transferData(options);
-    
+
     let options: TransferTaskOptions = {
       sourceMongodbUri: "",
       sourceDatabaseName: "",
