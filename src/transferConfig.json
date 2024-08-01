@@ -4,8 +4,9 @@
   "sourceCollection": "testcollection1",
   "filterQuery": {},
   "skip": 0,
-  "limit": 1000,
+  "limit": 10000,
   "targetMongodbUri": "mongodb://root:example@localhost:27017",
   "targetDatabaseName": "testdb",
-  "targetCollection": "testcollection2"
+  "targetCollection": "testcollection2",
+  "updateExisting": true
 }
