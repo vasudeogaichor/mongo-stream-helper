@@ -9,7 +9,6 @@ export interface DownloadTaskOptions {
   filename: string;
 }
 
-
 export interface TransferTaskOptions {
   sourceMongodbUri: string;
   sourceDatabaseName: string;
@@ -20,11 +19,11 @@ export interface TransferTaskOptions {
   targetMongodbUri: string;
   targetDatabaseName: string;
   targetCollection: string;
-  updateExisting: boolean
+  updateExisting: boolean;
+  background?: boolean;
 }
 
 export interface cliQuestion {
-
   type: string;
   name: string;
   message: string;
@@ -34,5 +33,5 @@ export interface cliQuestion {
 
 export interface cliOption {
   description: string;
-  default: string
+  default: string;
 }
