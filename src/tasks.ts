@@ -1,11 +1,12 @@
 import { MongoClient } from "mongodb";
 import * as fs from "fs";
 import ora from "ora";
+import pm2 from "pm2";
 import { DownloadTaskOptions, TransferTaskOptions } from "./types";
 
 export async function downloadData(options: DownloadTaskOptions) {
   const spinner = ora("Connecting to MongoDB...").start();
-  // console.log("downloadData: ", options);
+  console.log("downloadData: ", options);
 
   const client = new MongoClient(options.mongodbUri);
   try {
@@ -48,7 +49,9 @@ export async function downloadData(options: DownloadTaskOptions) {
       writeStream.write(JSON.stringify(doc));
       isFirstDocument = false;
       processedDocs++;
-      spinner.text = `Downloading data... (${Math.round((processedDocs / totalDocs) * 100)}%)`;
+      spinner.text = `Downloading data... (${Math.round(
+        (processedDocs / totalDocs) * 100
+      )}%)`;
     });
 
     stream.on("end", () => {
@@ -71,7 +74,8 @@ export async function downloadData(options: DownloadTaskOptions) {
 }
 
 export async function transferData(options: TransferTaskOptions) {
-  const spinner = ora('Connecting to MongoDB...').start();
+  console.log("TransferTaskOptions: ", options)
+  const spinner = ora("Connecting to MongoDB...").start();
   const sourceClient = new MongoClient(options.sourceMongodbUri);
   const targetClient = new MongoClient(options.targetMongodbUri);
   try {
@@ -89,11 +93,17 @@ export async function transferData(options: TransferTaskOptions) {
     const targetDb = targetClient.db(options.targetDatabaseName);
     const targetCollection = targetDb.collection(options.targetCollection);
 
-    const cursor = sourceCollection.find(options.filterQuery).skip(options.skip).limit(options.limit);
-    const totalDocs = await sourceCollection.countDocuments(options.filterQuery, {
-      skip: options.skip,
-      ...(options.limit && { limit: options.limit }),
-    });
+    const cursor = sourceCollection
+      .find(options.filterQuery)
+      .skip(options.skip)
+      .limit(options.limit);
+    const totalDocs = await sourceCollection.countDocuments(
+      options.filterQuery,
+      {
+        skip: options.skip,
+        ...(options.limit && { limit: options.limit }),
+      }
+    );
 
     let processedDocs = 0;
     spinner.text = `Transferring data (${processedDocs}/${totalDocs})...`;
@@ -113,20 +123,23 @@ export async function transferData(options: TransferTaskOptions) {
         spinner.text = `Transferring data (${processedDocs}/${totalDocs})...`;
         spinner.render();
       } catch (err: any) {
+        // TODO: Instead of filling the screen with warnings, keep a counter for documents skipped
         if (err.code === 11000 && !options.updateExisting) {
           // Duplicate key error, skip this document if not updating
-          console.warn(`Duplicate key error for document with _id: ${doc._id}, skipping...`);
+          console.warn(
+            `Duplicate key error for document with _id: ${doc._id}, skipping...`
+          );
         } else {
-          spinner.fail('Error transferring data.');
+          spinner.fail("Error transferring data.");
           console.error(err);
           break;
         }
       }
     }
 
-    spinner.succeed('Transfer completed.');
+    spinner.succeed("Transfer completed.");
   } catch (err) {
-    spinner.fail('Error transferring data.');
+    spinner.fail("Error transferring data.");
     console.error(err);
     sourceClient.close();
     targetClient.close();
@@ -135,4 +148,3 @@ export async function transferData(options: TransferTaskOptions) {
     await targetClient.close();
   }
 }
-
