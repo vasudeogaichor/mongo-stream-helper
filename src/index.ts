@@ -38,7 +38,7 @@ program
   .option("--filename <string>", "Filename for the downloaded data")
   .action(async (cmd) => {
     // console.log(cmd);
-    const options = cmd.config ? require(cmd.config) : {};
+    const options = cmd.config ? require(`${process.cwd()}/${cmd.config}`) : {};
 
     let parsedOptions: DownloadTaskOptions = {
       ...options,
