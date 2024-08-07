@@ -68,6 +68,12 @@ Create a configuration file `downloadConfig.json`:
 Run the download command with the configuration file:
 ```bash
 npx ts-node src/index.ts download --config downloadConfig.json
+
+
+3. Run below command and answer the subsequent prompts:
+```bash
+npx ts-node src/index.ts download
+```
 ```
 
 - **transfer**: Transfer data from one MongoDB collection to another collection.
@@ -82,12 +88,13 @@ npx ts-node src/index.ts download --config downloadConfig.json
 - **`targetMongodbUri`** (string, required): MongoDB URI for connecting to the database target.
 - **`targetDatabaseName`**(string, required): Name of the target database.
 - **`targetCollection`** (string, required): Name of the target collection.
+- **`updateExisting`** (boolean, optional): Include if you want to update existing documents else skip.
 - **`config`**(string, optional): Path to a JSON configuration file containing the above options.
 
 ### Example
 1. Transfer data using CLI options:
 ```bash
-npx ts-node src/index.ts transfer --sourceMongodbUri "mongodb://root:example@localhost:27017" --sourceDatabaseName "testdb" --sourceCollection "testcollection1" --filterQuery "{}" --skip 0 --limit 1000 --targetMongodbUri "mongodb://root:example@localhost:27017" --targetDatabaseName "testdb" --targetCollection "testcollection2"
+npx ts-node src/index.ts transfer --sourceMongodbUri "mongodb://root:example@localhost:27017" --sourceDatabaseName "testdb" --sourceCollection "testcollection1" --filterQuery "{}" --skip 0 --limit 1000 --targetMongodbUri "mongodb://root:example@localhost:27017" --targetDatabaseName "testdb" --targetCollection "testcollection2" --updateExisting
 ```
 
 2. Transfer data using a configuration file:
@@ -110,6 +117,11 @@ Create a configuration file `transferConfig.json`:
 Run the download command with the configuration file:
 ```bash
 npx ts-node src/index.ts transfer --config transferConfig.json
+```
+
+3. Run below command and answer the subsequent prompts:
+```bash
+npx ts-node src/index.ts transfer
 ```
 
 ## Development
