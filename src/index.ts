@@ -54,6 +54,7 @@ program
       filename: cmd.filename || options.filename,
     };
     // console.log('options: ', options)
+    // TODO: In future if an option is not found in cli params or config file, give a cli prompt for that option only
     if (
       !parsedOptions.mongodbUri ||
       !parsedOptions.databaseName ||
@@ -65,29 +66,6 @@ program
       parsedOptions = { ...parsedOptions, ...responses };
     }
 
-    // if (cmd.config) {
-    //   parsedOptions = JSON.parse(fs.readFileSync(cmd.config, "utf8"));
-    // } else {
-    //   // Convert filterQuery string to object if provided
-    //   if (options.filterQuery) {
-    //     try {
-    //       options.filterQuery = JSON.parse(options.filterQuery);
-    //     } catch (error) {
-    //       console.error("Invalid JSON format for filterQuery");
-    //       process.exit(1);
-    //     }
-    //   }
-
-    //   // Assign CLI options to the options object
-    //   parsedOptions.mongodbUri = options.mongodbUri;
-    //   parsedOptions.databaseName = options.databaseName;
-    //   parsedOptions.sourceCollection = options.sourceCollection;
-    //   parsedOptions.filterQuery = options.filterQuery;
-    //   parsedOptions.skip = options.skip ? parseInt(options.skip, 10) : 0;
-    //   parsedOptions.limit = options.limit ? parseInt(options.limit, 10) : 0;
-    //   parsedOptions.downloadLocation = options.downloadLocation;
-    //   parsedOptions.filename = options.filename;
-    // }
     await downloadData(parsedOptions);
   });
 
@@ -107,51 +85,43 @@ program
   .option("--targetCollection <string>", "Target collection name")
   .option("--updateExisting", "Update existing documents")
   .action(async (cmd) => {
-    // console.log("cmd.config: ", cmd.config);
-    const options = cmd.config
-      ? require(cmd.config)
-      : await prompt(transferQuestions);
-    // await transferData(options);
+    // console.log("cmd: ", cmd);
+    const options = cmd.config ? require(`${process.cwd()}/${cmd.config}`) : {};
 
-    let parseOptions: TransferTaskOptions = {
-      sourceMongodbUri: "",
-      sourceDatabaseName: "",
-      sourceCollection: "",
-      filterQuery: {},
-      skip: 0,
-      limit: 0,
-      targetMongodbUri: "",
-      targetDatabaseName: "",
-      targetCollection: "",
-      updateExisting: false,
+    let parsedOptions: TransferTaskOptions = {
+      sourceMongodbUri: cmd.sourceMongodbUri || options.sourceMongodbUri,
+      sourceDatabaseName: cmd.sourceDatabaseName || options.sourceDatabaseName,
+      sourceCollection: cmd.sourceCollection || options.sourceCollection,
+      filterQuery: cmd.filterQuery
+        ? JSON.parse(cmd.filterQuery)
+        : options.filterQuery,
+      skip: cmd.skip ? parseInt(cmd.skip, 10) : options.skip,
+      limit: cmd.limit ? parseInt(cmd.limit, 10) : options.limit,
+      targetMongodbUri: cmd.targetMongodbUri || options.targetMongodbUri,
+      targetDatabaseName: cmd.targetDatabaseName || options.targetDatabaseName,
+      targetCollection: cmd.targetCollection || options.targetCollection,
+      updateExisting: cmd.updateExisting ? true : options.updateExisting,
     };
 
-    if (cmd.config) {
-      parseOptions = JSON.parse(fs.readFileSync(cmd.config, "utf8"));
-    } else {
-      // Convert filterQuery string to object if provided
-      if (cmd.filterQuery) {
-        try {
-          cmd.filterQuery = JSON.parse(cmd.filterQuery);
-        } catch (error) {
-          console.error("Invalid JSON format for filterQuery");
-          process.exit(1);
-        }
-      }
-
-      // Assign CLI options to the options object
-      parseOptions.sourceMongodbUri = cmd.sourceMongodbUri;
-      parseOptions.sourceDatabaseName = cmd.sourceDatabaseName;
-      parseOptions.sourceCollection = cmd.sourceCollection;
-      parseOptions.filterQuery = cmd.filterQuery;
-      parseOptions.skip = cmd.skip ? parseInt(cmd.skip, 10) : 0;
-      parseOptions.limit = cmd.limit ? parseInt(cmd.limit, 10) : 0;
-      parseOptions.targetMongodbUri = cmd.targetMongodbUri;
-      parseOptions.targetDatabaseName = cmd.targetDatabaseName;
-      parseOptions.targetCollection = cmd.targetCollection;
-      parseOptions.updateExisting = cmd.updateExisting;
+    // TODO: In future if an option is not found in cli params or config file, give a cli prompt for that option only
+    if (
+      !parsedOptions.sourceMongodbUri ||
+      !parsedOptions.sourceDatabaseName ||
+      !parsedOptions.sourceCollection ||
+      !parsedOptions.sourceMongodbUri ||
+      !parsedOptions.targetMongodbUri ||
+      !parsedOptions.targetDatabaseName ||
+      !parsedOptions.targetCollection
+    ) {
+      const responses: Partial<TransferTaskOptions> = await prompt(transferQuestions);
+      if (typeof responses?.skip === 'string') responses.skip = parseInt(responses.skip, 10);
+      if (typeof responses?.limit === 'string') responses.limit = parseInt(responses.limit, 10);
+      if (typeof responses?.filterQuery === 'string') responses.filterQuery = JSON.parse(responses.filterQuery);
+      // console.log('responses: ', responses)
+      parsedOptions = { ...parsedOptions, ...responses };
     }
-    await transferData(parseOptions);
+
+    await transferData(parsedOptions);
   });
 
 program.parse(process.argv);
