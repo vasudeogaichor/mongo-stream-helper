@@ -1,15 +1,11 @@
 import { Command } from "commander";
 import { downloadData, transferData } from "./tasks";
 import { prompt } from "enquirer";
+
 import path = require("path");
-import {
-  cliOption,
-  cliQuestion,
-  DownloadTaskOptions,
-  TransferTaskOptions,
-} from "./types";
+import { DownloadTaskOptions, TransferTaskOptions } from "./types";
 import fs from "fs";
-import { transferQuestions } from "./questions";
+import { downloadQuestions, transferQuestions } from "./questions";
 
 const program = new Command();
 
@@ -41,7 +37,12 @@ program
   .option("--downloadLocation <string>", "Download location (directory path)")
   .option("--filename <string>", "Filename for the downloaded data")
   .action(async (cmd) => {
-    let options: DownloadTaskOptions = {
+    console.log(cmd)
+    const options = cmd.config
+      ? require(cmd.config)
+      : await prompt(downloadQuestions);
+
+    let parsedOptions: DownloadTaskOptions = {
       mongodbUri: "",
       databaseName: "",
       sourceCollection: "",
@@ -53,12 +54,12 @@ program
     };
 
     if (cmd.config) {
-      options = JSON.parse(fs.readFileSync(cmd.config, "utf8"));
+      parsedOptions = JSON.parse(fs.readFileSync(cmd.config, "utf8"));
     } else {
       // Convert filterQuery string to object if provided
-      if (cmd.filterQuery) {
+      if (options.filterQuery) {
         try {
-          cmd.filterQuery = JSON.parse(cmd.filterQuery);
+          options.filterQuery = JSON.parse(options.filterQuery);
         } catch (error) {
           console.error("Invalid JSON format for filterQuery");
           process.exit(1);
@@ -66,118 +67,17 @@ program
       }
 
       // Assign CLI options to the options object
-      options.mongodbUri = cmd.mongodbUri;
-      options.databaseName = cmd.databaseName;
-      options.sourceCollection = cmd.sourceCollection;
-      options.filterQuery = cmd.filterQuery;
-      options.skip = cmd.skip ? parseInt(cmd.skip, 10) : 0;
-      options.limit = cmd.limit ? parseInt(cmd.limit, 10) : 0;
-      options.downloadLocation = cmd.downloadLocation;
-      options.filename = cmd.filename;
+      parsedOptions.mongodbUri = options.mongodbUri;
+      parsedOptions.databaseName = options.databaseName;
+      parsedOptions.sourceCollection = options.sourceCollection;
+      parsedOptions.filterQuery = options.filterQuery;
+      parsedOptions.skip = options.skip ? parseInt(options.skip, 10) : 0;
+      parsedOptions.limit = options.limit ? parseInt(options.limit, 10) : 0;
+      parsedOptions.downloadLocation = options.downloadLocation;
+      parsedOptions.filename = options.filename;
     }
-    await downloadData(options);
+    await downloadData(parsedOptions);
   });
-
-async function promptForDownloadOptions() {
-  const questions = [
-    {
-      type: "input",
-      name: "mongodbUri",
-      message: "Enter MongoDB URI:",
-      initial: "mongodb://localhost:27017",
-      validate: (value: string) => {
-        const uriPattern =
-          /^mongodb(?:\+srv)?:\/\/(?:[^:]+:[^@]+@)?[^:\\/]+(?:\.[^:\\/]+)*(:\d+)?(?:\/[^?]*)?(?:\?.*)?$/;
-        return uriPattern.test(value)
-          ? true
-          : "Please enter a valid MongoDB URI";
-      },
-    },
-    {
-      type: "input",
-      name: "databaseName",
-      message: "Enter database name:",
-      validate: (value: string) =>
-        value.trim().length > 0 || "Database name cannot be empty",
-    },
-    {
-      type: "input",
-      name: "sourceCollection",
-      message: "Enter source collection name:",
-      validate: (value: string) =>
-        value.trim().length > 0 || "Collection name cannot be empty",
-    },
-    {
-      type: "input",
-      name: "filterQuery",
-      message: "Enter filter query (JSON format):",
-      initial: "{}",
-      validate: (value: string) => {
-        try {
-          JSON.parse(value);
-          return true;
-        } catch (e) {
-          return "Please enter a valid JSON format";
-        }
-      },
-    },
-    {
-      type: "input",
-      name: "skip",
-      message: "Enter number of documents to skip:",
-      initial: "0",
-      validate: (value: string) => {
-        const number = parseInt(value, 10);
-        return (
-          (!isNaN(number) && number >= 0) ||
-          "Please enter a valid non-negative integer"
-        );
-      },
-    },
-    {
-      type: "input",
-      name: "limit",
-      message: "Enter limit on number of documents to fetch:",
-      initial: "0", // Use 0 to fetch all documents by default
-      validate: (value: string) => {
-        const number = parseInt(value, 10);
-        return (
-          (!isNaN(number) && number >= 0) ||
-          "Please enter a valid non-negative integer"
-        );
-      },
-    },
-    {
-      type: "input",
-      name: "downloadLocation",
-      message: "Enter download location:",
-      initial: process.cwd(), // Default to current working directory
-      validate: (value: string) => {
-        try {
-          // Validate if the path is valid and writable
-          const resolvedPath = path.resolve(value);
-          if (resolvedPath) {
-            return true;
-          }
-          return false;
-        } catch (e) {
-          return "Please enter a valid file path";
-        }
-      },
-    },
-    {
-      type: "input",
-      name: "filename",
-      message: "Enter filename:",
-      initial: "download.json",
-      validate: (value: string) =>
-        value.trim().length > 0 || "Filename cannot be empty",
-    },
-    // Add more questions as needed
-  ];
-
-  return prompt(questions);
-}
 
 // handle transfer task
 program
@@ -195,10 +95,13 @@ program
   .option("--targetCollection <string>", "Target collection name")
   .option("--updateExisting", "Update existing documents")
   .action(async (cmd) => {
-    // const options = cmd.config ? require(cmd.config) : await prompt(transferQuestions);
+    console.log("cmd.config: ", cmd.config);
+    const options = cmd.config
+      ? require(cmd.config)
+      : await prompt(transferQuestions);
     // await transferData(options);
 
-    let options: TransferTaskOptions = {
+    let parseOptions: TransferTaskOptions = {
       sourceMongodbUri: "",
       sourceDatabaseName: "",
       sourceCollection: "",
@@ -212,7 +115,7 @@ program
     };
 
     if (cmd.config) {
-      options = JSON.parse(fs.readFileSync(cmd.config, "utf8"));
+      parseOptions = JSON.parse(fs.readFileSync(cmd.config, "utf8"));
     } else {
       // Convert filterQuery string to object if provided
       if (cmd.filterQuery) {
@@ -225,18 +128,18 @@ program
       }
 
       // Assign CLI options to the options object
-      options.sourceMongodbUri = cmd.sourceMongodbUri;
-      options.sourceDatabaseName = cmd.sourceDatabaseName;
-      options.sourceCollection = cmd.sourceCollection;
-      options.filterQuery = cmd.filterQuery;
-      options.skip = cmd.skip ? parseInt(cmd.skip, 10) : 0;
-      options.limit = cmd.limit ? parseInt(cmd.limit, 10) : 0;
-      options.targetMongodbUri = cmd.targetMongodbUri;
-      options.targetDatabaseName = cmd.targetDatabaseName;
-      options.targetCollection = cmd.targetCollection;
-      options.updateExisting = cmd.updateExisting;
+      parseOptions.sourceMongodbUri = cmd.sourceMongodbUri;
+      parseOptions.sourceDatabaseName = cmd.sourceDatabaseName;
+      parseOptions.sourceCollection = cmd.sourceCollection;
+      parseOptions.filterQuery = cmd.filterQuery;
+      parseOptions.skip = cmd.skip ? parseInt(cmd.skip, 10) : 0;
+      parseOptions.limit = cmd.limit ? parseInt(cmd.limit, 10) : 0;
+      parseOptions.targetMongodbUri = cmd.targetMongodbUri;
+      parseOptions.targetDatabaseName = cmd.targetDatabaseName;
+      parseOptions.targetCollection = cmd.targetCollection;
+      parseOptions.updateExisting = cmd.updateExisting;
     }
-    await transferData(options);
+    await transferData(parseOptions);
   });
 
 program.parse(process.argv);
