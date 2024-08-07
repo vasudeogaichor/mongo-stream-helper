@@ -37,45 +37,57 @@ program
   .option("--downloadLocation <string>", "Download location (directory path)")
   .option("--filename <string>", "Filename for the downloaded data")
   .action(async (cmd) => {
-    console.log(cmd)
-    const options = cmd.config
-      ? require(cmd.config)
-      : await prompt(downloadQuestions);
+    // console.log(cmd);
+    const options = cmd.config ? require(cmd.config) : {};
 
     let parsedOptions: DownloadTaskOptions = {
-      mongodbUri: "",
-      databaseName: "",
-      sourceCollection: "",
-      filterQuery: {},
-      skip: 0,
-      limit: 0,
-      downloadLocation: "",
-      filename: "",
+      ...options,
+      mongodbUri: cmd.mongodbUri || options.mongodbUri,
+      databaseName: cmd.databaseName || options.databaseName,
+      sourceCollection: cmd.sourceCollection || options.sourceCollection,
+      filterQuery: cmd.filterQuery
+        ? JSON.parse(cmd.filterQuery)
+        : options.filterQuery,
+      skip: cmd.skip !== undefined ? parseInt(cmd.skip, 10) : options.skip,
+      limit: cmd.limit !== undefined ? parseInt(cmd.limit, 10) : options.limit,
+      downloadLocation: cmd.downloadLocation || options.downloadLocation,
+      filename: cmd.filename || options.filename,
     };
-
-    if (cmd.config) {
-      parsedOptions = JSON.parse(fs.readFileSync(cmd.config, "utf8"));
-    } else {
-      // Convert filterQuery string to object if provided
-      if (options.filterQuery) {
-        try {
-          options.filterQuery = JSON.parse(options.filterQuery);
-        } catch (error) {
-          console.error("Invalid JSON format for filterQuery");
-          process.exit(1);
-        }
-      }
-
-      // Assign CLI options to the options object
-      parsedOptions.mongodbUri = options.mongodbUri;
-      parsedOptions.databaseName = options.databaseName;
-      parsedOptions.sourceCollection = options.sourceCollection;
-      parsedOptions.filterQuery = options.filterQuery;
-      parsedOptions.skip = options.skip ? parseInt(options.skip, 10) : 0;
-      parsedOptions.limit = options.limit ? parseInt(options.limit, 10) : 0;
-      parsedOptions.downloadLocation = options.downloadLocation;
-      parsedOptions.filename = options.filename;
+    // console.log('options: ', options)
+    if (
+      !parsedOptions.mongodbUri ||
+      !parsedOptions.databaseName ||
+      !parsedOptions.sourceCollection ||
+      !parsedOptions.downloadLocation ||
+      !parsedOptions.filename
+    ) {
+      const responses = await prompt(downloadQuestions);
+      parsedOptions = { ...parsedOptions, ...responses };
     }
+
+    // if (cmd.config) {
+    //   parsedOptions = JSON.parse(fs.readFileSync(cmd.config, "utf8"));
+    // } else {
+    //   // Convert filterQuery string to object if provided
+    //   if (options.filterQuery) {
+    //     try {
+    //       options.filterQuery = JSON.parse(options.filterQuery);
+    //     } catch (error) {
+    //       console.error("Invalid JSON format for filterQuery");
+    //       process.exit(1);
+    //     }
+    //   }
+
+    //   // Assign CLI options to the options object
+    //   parsedOptions.mongodbUri = options.mongodbUri;
+    //   parsedOptions.databaseName = options.databaseName;
+    //   parsedOptions.sourceCollection = options.sourceCollection;
+    //   parsedOptions.filterQuery = options.filterQuery;
+    //   parsedOptions.skip = options.skip ? parseInt(options.skip, 10) : 0;
+    //   parsedOptions.limit = options.limit ? parseInt(options.limit, 10) : 0;
+    //   parsedOptions.downloadLocation = options.downloadLocation;
+    //   parsedOptions.filename = options.filename;
+    // }
     await downloadData(parsedOptions);
   });
 
@@ -95,7 +107,7 @@ program
   .option("--targetCollection <string>", "Target collection name")
   .option("--updateExisting", "Update existing documents")
   .action(async (cmd) => {
-    console.log("cmd.config: ", cmd.config);
+    // console.log("cmd.config: ", cmd.config);
     const options = cmd.config
       ? require(cmd.config)
       : await prompt(transferQuestions);
