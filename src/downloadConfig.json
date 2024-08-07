@@ -4,8 +4,9 @@
   "sourceCollection": "testcollection1",
   "filterQuery": {
   },
-  "downloadLocation": "/home",
+  "downloadLocation": "/home/lord_saum/vasudeo/mongo-stream-helper",
   "filename": "download.json",
   "skip": 0,
-  "limit": 0
+  "limit": 0,
+  "background": true
 }

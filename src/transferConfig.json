@@ -8,5 +8,6 @@
   "targetMongodbUri": "mongodb://root:example@localhost:27017",
   "targetDatabaseName": "testdb",
   "targetCollection": "testcollection2",
-  "updateExisting": true
+  "updateExisting": true,
+  "background": true
 }
