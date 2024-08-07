@@ -47,7 +47,7 @@ npx ts-node src/index.ts <command> [options]
 ### Example
 1. Download data using CLI options:
 ```bash
-npx ts-node src/index.ts download --mongodbUri "mongodb://root:example@localhost:27017" --databaseName "testdb" --sourceCollection "testcollection" --filterQuery "{}" --skip 0 --limit 1000 --downloadLocation "./downloads" --filename "data.json"
+npx ts-node src/index.ts download --mongodbUri "mongodb://root:example@localhost:27017" --databaseName "testdb" --sourceCollection "testcollection" --filterQuery "{}" --skip 0 --limit 1000 --downloadLocation "home/username/Downloads" --filename "data.json"
 ```
 
 2. Download data using a configuration file:
