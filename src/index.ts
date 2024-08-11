@@ -2,22 +2,10 @@ import { Command } from "commander";
 import { downloadData, transferData } from "./tasks";
 import { prompt } from "enquirer";
 
-import path = require("path");
 import { DownloadTaskOptions, TransferTaskOptions } from "./types";
-import fs from "fs";
 import { downloadQuestions, transferQuestions } from "./questions";
 
 const program = new Command();
-
-const parseOptions = function (options: DownloadTaskOptions) {
-  options.filterQuery =
-    typeof options.filterQuery === "string"
-      ? JSON.parse(options.filterQuery)
-      : options.filterQuery;
-  options.skip = parseInt(options.skip.toString()) || 0;
-  options.limit = parseInt(options.limit.toString()) || 0;
-  return options;
-};
 
 program.version("0.1.0").description("CLI tool for MongoDB data tasks");
 
@@ -113,10 +101,15 @@ program
       !parsedOptions.targetDatabaseName ||
       !parsedOptions.targetCollection
     ) {
-      const responses: Partial<TransferTaskOptions> = await prompt(transferQuestions);
-      if (typeof responses?.skip === 'string') responses.skip = parseInt(responses.skip, 10);
-      if (typeof responses?.limit === 'string') responses.limit = parseInt(responses.limit, 10);
-      if (typeof responses?.filterQuery === 'string') responses.filterQuery = JSON.parse(responses.filterQuery);
+      const responses: Partial<TransferTaskOptions> = await prompt(
+        transferQuestions
+      );
+      if (typeof responses?.skip === "string")
+        responses.skip = parseInt(responses.skip, 10);
+      if (typeof responses?.limit === "string")
+        responses.limit = parseInt(responses.limit, 10);
+      if (typeof responses?.filterQuery === "string")
+        responses.filterQuery = JSON.parse(responses.filterQuery);
       // console.log('responses: ', responses)
       parsedOptions = { ...parsedOptions, ...responses };
     }
