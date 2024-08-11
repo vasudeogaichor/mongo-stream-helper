@@ -1,0 +1,12 @@
+{
+  "mongodbUri": "mongodb://root:example@localhost:27017",
+  "databaseName": "testdb",
+  "sourceCollection": "testcollection1",
+  "filterQuery": {
+  },
+  "downloadLocation": "/home/Downloads",
+  "filename": "download.json",
+  "skip": 0,
+  "limit": 1000,
+  "background": true
+}
