@@ -6,7 +6,7 @@ const program = new Command();
 
 program.version("0.1.0").description("CLI tool for MongoDB data tasks");
 
-// ts-node src/index.ts transfer --config /home/lord_saum/vasudeo/mongo-stream-helper/src/transferConfig.json
+// ts-node src/index.ts transfer --config /home/mongo-stream-helper/src/transferConfig.json
 
 createDownloadCommand(program);
 createTransferCommand(program);

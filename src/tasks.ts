@@ -74,7 +74,7 @@ export async function downloadData(options: DownloadTaskOptions) {
 }
 
 export async function transferData(options: TransferTaskOptions) {
-  console.log("TransferTaskOptions: ", options)
+  // console.log("TransferTaskOptions: ", options)
   const spinner = ora("Connecting to MongoDB...").start();
   const sourceClient = new MongoClient(options.sourceMongodbUri);
   const targetClient = new MongoClient(options.targetMongodbUri);
