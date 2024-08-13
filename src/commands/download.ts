@@ -3,7 +3,7 @@ import { prompt } from "enquirer";
 
 import { DownloadTaskOptions } from "../types";
 import { downloadQuestions } from "../questions";
-import { downloadData } from "../tasks";
+import { downloadData } from '../tasks/download';
 
 // handle download task
 export function createTransferCommand(program: Command) {

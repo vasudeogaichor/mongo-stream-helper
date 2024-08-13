@@ -3,7 +3,7 @@ import { prompt } from "enquirer";
 
 import { TransferTaskOptions } from "../types";
 import { transferQuestions } from "../questions";
-import { transferData } from "../tasks";
+import { transferData } from '../tasks/transfer';
 
 // handle transfer task
 export function createDownloadCommand(program: Command) {
@@ -22,7 +22,7 @@ export function createDownloadCommand(program: Command) {
     .option("--targetCollection <string>", "Target collection name")
     .option("--updateExisting", "Update existing documents")
     .action(async (cmd) => {
-      console.log("cmd: ", cmd);
+      // console.log("cmd: ", cmd);
       const options = cmd.config
         ? require(`${process.cwd()}/${cmd.config}`)
         : {};
