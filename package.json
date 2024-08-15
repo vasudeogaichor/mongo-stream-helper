@@ -41,8 +41,7 @@
     "enquirer": "^2.4.1",
     "esm": "^3.2.25",
     "mongodb": "^6.8.0",
-    "ora": "^3.4.0",
-    "pm2": "^5.4.2"
+    "ora": "^3.4.0"
   },
   "bin": {
     "mongo-stream-helper": "./dist/index.js"
