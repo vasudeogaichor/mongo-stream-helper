@@ -1,6 +1,7 @@
 import { MongoClient } from "mongodb";
 import ora from "ora";
-import { TransferTaskOptions } from '../types';
+import { TransferTaskOptions } from "../types";
+import { sendTaskCompletionNotification } from "../notifier";
 
 export async function transferData(options: TransferTaskOptions) {
   // console.log("TransferTaskOptions: ", options)
@@ -67,11 +68,21 @@ export async function transferData(options: TransferTaskOptions) {
     }
 
     spinner.succeed("Transfer completed.");
+    sendTaskCompletionNotification({
+      taskName: `Transfer to ${options.targetCollection}`,
+      status: 'completed',
+      message: 'All documents have been transferred successfully.'
+    });
   } catch (err) {
     spinner.fail("Error transferring data.");
     console.error(err);
     sourceClient.close();
     targetClient.close();
+    sendTaskCompletionNotification({
+      taskName: `Transfer to ${options.targetCollection}`,
+      status: 'failed',
+      message: 'Error transferring documents.'
+    });
   } finally {
     await sourceClient.close();
     await targetClient.close();

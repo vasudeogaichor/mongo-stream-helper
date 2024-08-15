@@ -35,3 +35,9 @@ export interface cliOption {
   description: string;
   default: string;
 }
+
+export interface NotificationOptions {
+  taskName: string;
+  status: string; // e.g., 'completed', 'failed', etc.
+  message?: string; // Optional custom message
+}
