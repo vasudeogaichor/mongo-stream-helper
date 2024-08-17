@@ -2,6 +2,7 @@ import { MongoClient } from "mongodb";
 import * as fs from "fs";
 import ora from "ora";
 import { DownloadTaskOptions } from "../types";
+import { sendTaskCompletionNotification } from '../notifier';
 
 export async function downloadData(options: DownloadTaskOptions) {
   const spinner = ora("Connecting to MongoDB...").start();
@@ -57,16 +58,31 @@ export async function downloadData(options: DownloadTaskOptions) {
       spinner.succeed("Download completed.");
       writeStream.end();
       client.close();
+      sendTaskCompletionNotification({
+        taskName: `Download to local`,
+        status: 'completed',
+        message: 'All documents have been downloaded successfully.'
+      });
     });
 
     stream.on("error", (err) => {
       spinner.fail("Download failed.");
       console.error(err);
       client.close();
+      sendTaskCompletionNotification({
+        taskName: `Download to local`,
+        status: 'failed',
+        message: 'There was an error while downloading the documents.'
+      });
     });
   } catch (err) {
     spinner.fail("Error downloading data.");
     console.error(err);
     client.close();
+    sendTaskCompletionNotification({
+      taskName: `Download to local`,
+      status: 'failed',
+      message: 'There was an error while downloading the documents.'
+    });
   }
 }
