@@ -130,3 +130,24 @@ To build the project, run:
 ```bash
 npm run build
 ```
+
+### Running the Tests
+#### Prerequisites
+Ensure you have the required test dependencies installed:
+```bash
+npm install --save-dev mocha chai ts-mocha
+```
+
+#### Generating Test Data
+Before running the tests, generate test data using the generateData script:
+1. Use src/generateData.ts script to upload data to a test collection with faker.js:
+2. Run the script:
+    ```bash
+    ts-node src/generateData.ts
+    ```
+3. Update the credentials in the test scripts.
+4. To run the tests, use the following command:
+    ```bash
+    npm run test:dev
+    ```
+
