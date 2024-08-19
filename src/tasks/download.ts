@@ -6,7 +6,7 @@ import { sendTaskCompletionNotification } from '../notifier';
 
 export async function downloadData(options: DownloadTaskOptions) {
   const spinner = ora("Connecting to MongoDB...").start();
-  console.log("downloadData: ", options);
+  // console.log("downloadData: ", options);
 
   const client = new MongoClient(options.mongodbUri);
   try {
