@@ -2,7 +2,7 @@
   "name": "mongo-stream-helper",
   "version": "1.0.0",
   "description": "CLI tool for MongoDB data tasks",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "clean:dist": "rimraf ./dist",
     "clean:modules": "rimraf ./node_modules",
@@ -11,7 +11,7 @@
     "lint:fix": "npx eslint --fix src/**/*.ts && npx eslint --fix test/**/*.ts",
     "prebuild": "npm run clean:dist",
     "build": "tsc",
-    "start": "node dist/src/index",
+    "start": "node dist/index",
     "start:dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "pretest": "npm run build",
     "test": "mocha dist/test/**/*.js",
@@ -44,7 +44,7 @@
     "ora": "^3.4.0"
   },
   "bin": {
-    "mongo-stream-helper": "./dist/index.js"
+    "mongo-stream-helper": "dist/index.js"
   },
   "keywords": [
     "mongodb",
