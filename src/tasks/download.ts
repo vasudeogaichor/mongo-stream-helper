@@ -29,7 +29,7 @@ export async function downloadData(options: DownloadTaskOptions) {
       skip: options.skip,
       ...(options.limit && { limit: options.limit }),
     });
-    console.log("totalDocs - ", totalDocs);
+    console.log("Total documents found: ", totalDocs);
     let processedDocs = 0;
     spinner.start(`Downloading data (0/${totalDocs})...`);
 
