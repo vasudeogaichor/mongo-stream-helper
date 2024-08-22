@@ -1,6 +1,7 @@
+#!/usr/bin/env node
 import { Command } from "commander";
-import { createDownloadCommand } from "./commands/transfer";
-import { createTransferCommand } from "./commands/download";
+import { createTransferCommand } from "./commands/transfer";
+import { createDownloadCommand } from "./commands/download";
 
 const program = new Command();
 
