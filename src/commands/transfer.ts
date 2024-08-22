@@ -6,7 +6,7 @@ import { transferQuestions } from "../questions";
 import { transferData } from '../tasks/transfer';
 
 // handle transfer task
-export function createDownloadCommand(program: Command) {
+export function createTransferCommand(program: Command) {
   program
     .command("transfer")
     .description("Transfer MongoDB data from one collection to another")

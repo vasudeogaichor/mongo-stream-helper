@@ -6,7 +6,7 @@ import { downloadQuestions } from "../questions";
 import { downloadData } from '../tasks/download';
 
 // handle download task
-export function createTransferCommand(program: Command) {
+export function createDownloadCommand(program: Command) {
   program
     .command("download")
     .description("Download MongoDB data to local disk")
